@@ -6,7 +6,7 @@
  * @flow strict-local
  */
 
-import React from 'react';
+import React, {useState} from 'react';
 import auth from '@react-native-firebase/auth';
 import {
   GoogleSignin,
@@ -27,6 +27,7 @@ import {
   Dimensions,
   TouchableOpacity,
   Button,
+  TextInput,
 } from 'react-native';
 
 import {
@@ -152,12 +153,47 @@ const onFacebookButtonPress = async props => {
   return auth().signInWithCredential(facebookCredential);
 };
 
+// const onMobileAuthPress = async phoneNumber => {
+//   const confirmation = await auth().signInWithPhoneNumber(phoneNumber);
+//   setConfirm(confirmation);
+//   alert('Mobile Auth');
+// };
+
+async function confirmCode() {
+  try {
+    await confirm.confirm(code);
+  } catch (error) {
+    console.log('Invalid code.');
+  }
+}
+
 const Auth: () => Node = props => {
   const isDarkMode = useColorScheme() === 'dark';
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
+
+  // If null, no SMS has been sent
+  const [confirm, setConfirm] = useState(null);
+  const [code, setCode] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+
+  const onMobileAuthPress = async phoneNumber => {
+    await Firebase.initializeApp();
+    const confirmation = await auth().signInWithPhoneNumber(phoneNumber);
+    setConfirm(confirmation);
+    alert('Mobile Auth');
+  };
+
+  async function confirmCode() {
+    try {
+      await confirm.confirm(code);
+      console.log('Code Confirmed');
+    } catch (error) {
+      console.log('Invalid code.');
+    }
+  }
 
   // const onGoogleButtonPress = async () => {
   //   // Get the users ID token
@@ -167,6 +203,22 @@ const Auth: () => Node = props => {
   //   // // Sign-in the user with the credential
   //   // return auth().signInWithCredential(googleCredential);
   // };
+
+  // if (!confirm) {
+  //   return (
+  //     <Button
+  //       title="Phone Number Sign In"
+  //       onPress={() => onMobileAuthPress('+8801912268882')}
+  //     />
+  //   );
+  // }
+
+  // return (
+  //   <>
+  //     <TextInput value={code} onChangeText={text => setCode(text)} />
+  //     <Button title="Confirm Code" onPress={() => confirmCode()} />
+  //   </>
+  // );
 
   return (
     <SafeAreaView style={backgroundStyle}>
@@ -223,6 +275,36 @@ const Auth: () => Node = props => {
               // }
             }
           />
+          <View style={{height: 20}} />
+
+          {!confirm ? (
+            <View style={{width: '100%'}}>
+              <Text>+88</Text>
+              <TextInput
+                value={phoneNumber}
+                onChangeText={text => setPhoneNumber(text)}
+                style={{borderWidth: 1, width: '100%'}}
+              />
+              <View style={{height: 20}} />
+
+              <Button
+                title="Mobile Number Sign-In"
+                onPress={() => onMobileAuthPress(`+880${phoneNumber}`)}
+              />
+            </View>
+          ) : (
+            <View style={{width: '100%'}}>
+              <TextInput
+                value={code}
+                placeholder="Code"
+                onChangeText={text => setCode(text)}
+                style={{borderWidth: 1}}
+              />
+              <View style={{height: 20}} />
+
+              <Button title="Confirm Code" onPress={() => confirmCode()} />
+            </View>
+          )}
 
           {/* <LoginButton
               onLoginFinished={(error, result) => {

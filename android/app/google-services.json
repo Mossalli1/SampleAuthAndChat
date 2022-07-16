@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "870009864493",
+    "firebase_url": "https://sampletestauth-default-rtdb.firebaseio.com",
     "project_id": "sampletestauth",
     "storage_bucket": "sampletestauth.appspot.com"
   },
